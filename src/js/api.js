@@ -2,11 +2,10 @@
 // RAWG API Module
 // Get your free key at: https://rawg.io/apidocs
 // ═══════════════════════════════════════
-import APIKEY from './apikey';
 
 const API = (() => {
   // ⚠️  Replace this with your own free RAWG API key from https://rawg.io/apidocs
-  const API_KEY = APIKEY;
+  const API_KEY = 'YOUR_API_KEY_HERE';
   const BASE = 'https://api.rawg.io/api';
 
   async function fetchGame(searchName) {
