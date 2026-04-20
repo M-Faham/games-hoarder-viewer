@@ -2,9 +2,13 @@
 
 A Steam-like Windows desktop app for browsing your repacked games library. Point it at a folder full of repacked games and it automatically fetches cover art, ratings, descriptions, screenshots, and more from RAWG.
 
-![Library Grid View](screenshots/grid.png)
+<img width="2102" height="1331" alt="Image" src="https://github.com/user-attachments/assets/a346d994-fc37-4b44-a9cc-4281618c8e02" />
 
-![Welcome Screen](screenshots/welcome.png)
+<img width="3833" height="1750" alt="Image" src="https://github.com/user-attachments/assets/d701f53f-ab75-4ef0-91a3-342f5a3cbb1a" />
+
+<img width="3839" height="2068" alt="Image" src="https://github.com/user-attachments/assets/e60ba843-5cc3-4799-9e19-9400fe49b3c2" />
+
+<img width="3839" height="1977" alt="Image" src="https://github.com/user-attachments/assets/04cf95a8-9797-4ba8-8a25-07bfefe9832f" />
 
 ---
 
