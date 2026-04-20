@@ -1,0 +1,25 @@
+{
+  "name": "games-hoarder-viewer",
+  "version": "1.0.0",
+  "description": "A Steam-like game library browser for repacked games",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^41.2.1",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "com.gameshoarderviewer.app",
+    "productName": "Games Hoarder Viewer",
+    "win": {
+      "target": "nsis",
+      "icon": "src/assets/icon.ico"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}

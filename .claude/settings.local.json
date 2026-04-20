@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"require\\('./src/main.js'\\)\")",
+      "Bash(npm start *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const e = require\\('electron'\\); console.log\\(typeof e, e\\)\")",
+      "Bash(./node_modules/electron/dist/electron.exe --version)",
+      "Bash(taskkill /F /IM electron.exe)",
+      "Bash(./node_modules/electron/dist/electron.exe .)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}
