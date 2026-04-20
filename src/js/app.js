@@ -4,36 +4,37 @@
 
 const App = (() => {
   // State
-  let games = [];          // [{folderName, searchName, data, skipped}]
+  let games = [];          // [{folderName, searchName, folderPath, data, skipped}]
+  let pendingFolders = []; // folders accumulated across multiple picks, not yet searched
   let currentView = 'grid';
   let sidebarActive = -1;
   let searchQuery = '';
 
   // DOM refs
   const $ = id => document.getElementById(id);
-  const welcomeScreen   = $('welcomeScreen');
-  const confirmOverlay  = $('confirmOverlay');
-  const confirmList     = $('confirmList');
-  const confirmCount    = $('confirmCount');
-  const loadingScreen   = $('loadingScreen');
-  const loadingText     = $('loadingText');
-  const loadingBar      = $('loadingBar');
-  const loadingSub      = $('loadingSub');
-  const searchWrap      = $('searchWrap');
-  const searchInput     = $('searchInput');
-  const viewToggle      = $('viewToggle');
-  const viewGrid        = $('viewGrid');
-  const viewList        = $('viewList');
-  const viewSidebar     = $('viewSidebar');
-  const gameGrid        = $('gameGrid');
-  const gameList        = $('gameList');
-  const sidebarInner    = $('sidebarInner');
-  const detailPanel     = $('detailPanel');
+  const welcomeScreen    = $('welcomeScreen');
+  const confirmOverlay   = $('confirmOverlay');
+  const confirmList      = $('confirmList');
+  const confirmCount     = $('confirmCount');
+  const loadingScreen    = $('loadingScreen');
+  const loadingText      = $('loadingText');
+  const loadingBar       = $('loadingBar');
+  const loadingSub       = $('loadingSub');
+  const searchWrap       = $('searchWrap');
+  const searchInput      = $('searchInput');
+  const viewToggle       = $('viewToggle');
+  const viewGrid         = $('viewGrid');
+  const viewList         = $('viewList');
+  const viewSidebar      = $('viewSidebar');
+  const gameGrid         = $('gameGrid');
+  const gameList         = $('gameList');
+  const sidebarInner     = $('sidebarInner');
+  const detailPanel      = $('detailPanel');
   const gameModalOverlay = $('gameModalOverlay');
-  const gameModal       = $('gameModal');
-  const modalHero       = $('modalHero');
-  const modalBody       = $('modalBody');
-  const modalClose      = $('modalClose');
+  const gameModal        = $('gameModal');
+  const modalHero        = $('modalHero');
+  const modalBody        = $('modalBody');
+  const modalClose       = $('modalClose');
 
   // ── INIT ──
   function init() {
@@ -41,8 +42,11 @@ const App = (() => {
     $('btnWelcomePick').addEventListener('click', pickFolder);
     $('btnCancelConfirm').addEventListener('click', () => {
       confirmOverlay.style.display = 'none';
+      pendingFolders = [];
     });
+    $('btnAddMoreFolders').addEventListener('click', addMoreFolders);
     $('btnStartSearch').addEventListener('click', startSearch);
+    $('btnClearCache').addEventListener('click', clearCache);
     modalClose.addEventListener('click', closeModal);
     gameModalOverlay.addEventListener('click', e => {
       if (e.target === gameModalOverlay) closeModal();
@@ -57,6 +61,21 @@ const App = (() => {
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closeModal();
     });
+
+    updateCacheLabel();
+  }
+
+  function updateCacheLabel() {
+    const btn = $('btnClearCache');
+    if (!btn) return;
+    const count = API.cacheStats();
+    btn.textContent = count > 0 ? `Clear Cache (${count})` : 'Clear Cache';
+  }
+
+  function clearCache() {
+    const n = API.clearCache();
+    updateCacheLabel();
+    if (n > 0) showToast(`Cleared ${n} cached game${n !== 1 ? 's' : ''}`);
   }
 
   // ── PICK FOLDER ──
@@ -65,30 +84,69 @@ const App = (() => {
     if (!dirPath) return;
 
     const result = await window.electronAPI.readFolders(dirPath);
-    if (result.error) {
-      alert('Error reading folder: ' + result.error);
-      return;
-    }
-    if (result.length === 0) {
-      alert('No subfolders found in that directory.');
+    if (result.error) { alert('Error reading folder: ' + result.error); return; }
+    if (result.length === 0) { alert('No subfolders found in that directory.'); return; }
+
+    // Deduplicate against already-loaded games and existing pending folders
+    const existingPaths = new Set([
+      ...games.map(g => g.folderPath),
+      ...pendingFolders.map(f => f.path)
+    ]);
+    const fresh = result.filter(f => !existingPaths.has(f.path));
+
+    if (fresh.length === 0) {
+      showToast('All folders in this directory are already in your library.');
       return;
     }
 
-    showConfirmModal(result);
+    pendingFolders = [...pendingFolders, ...fresh];
+    showConfirmModal();
+  }
+
+  // ── ADD MORE FOLDERS (while confirm modal is open) ──
+  async function addMoreFolders() {
+    const dirPath = await window.electronAPI.pickDirectory();
+    if (!dirPath) return;
+
+    const result = await window.electronAPI.readFolders(dirPath);
+    if (result.error) { alert('Error reading folder: ' + result.error); return; }
+    if (result.length === 0) { alert('No subfolders found.'); return; }
+
+    const existingPaths = new Set([
+      ...games.map(g => g.folderPath),
+      ...pendingFolders.map(f => f.path)
+    ]);
+    const fresh = result.filter(f => !existingPaths.has(f.path));
+
+    if (fresh.length === 0) {
+      showToast('All folders already added.');
+      return;
+    }
+
+    pendingFolders = [...pendingFolders, ...fresh];
+    showConfirmModal();
   }
 
   // ── CONFIRM MODAL ──
-  function showConfirmModal(folders) {
+  function showConfirmModal() {
     confirmList.innerHTML = '';
-    folders.forEach((folder, i) => {
+    pendingFolders.forEach((folder, i) => {
       const item = document.createElement('div');
       item.className = 'confirm-item';
       item.dataset.index = i;
+
+      const isCached = API.cacheStats() > 0;
+      const cachedBadge = isCached
+        ? `<span class="cached-badge" title="Data cached locally">●</span>`
+        : '';
+
       item.innerHTML = `
         <span class="confirm-item-index">${i + 1}</span>
-        <span class="confirm-item-original" title="${folder.name}">${folder.name}</span>
+        <span class="confirm-item-original" title="${folder.path}">${folder.name}</span>
         <span class="confirm-item-arrow">→</span>
-        <input class="confirm-item-input" type="text" value="${folder.cleaned}" data-original="${folder.name}" />
+        <input class="confirm-item-input" type="text" value="${folder.cleaned}"
+               data-original="${folder.name}" data-path="${folder.path}" />
+        ${cachedBadge}
         <button class="confirm-item-skip">Skip</button>
       `;
       const skipBtn = item.querySelector('.confirm-item-skip');
@@ -99,7 +157,9 @@ const App = (() => {
       confirmList.appendChild(item);
     });
 
-    confirmCount.textContent = `${folders.length} game folder${folders.length !== 1 ? 's' : ''} detected`;
+    const total = pendingFolders.length;
+    const existing = games.length;
+    confirmCount.textContent = `${total} new folder${total !== 1 ? 's' : ''} detected${existing > 0 ? ` · ${existing} already in library` : ''}`;
     confirmOverlay.style.display = 'flex';
     welcomeScreen.style.display = 'none';
   }
@@ -108,49 +168,59 @@ const App = (() => {
   async function startSearch() {
     confirmOverlay.style.display = 'none';
 
-    // Build game list from confirm modal
     const items = confirmList.querySelectorAll('.confirm-item');
     const toSearch = [];
     items.forEach(item => {
       const skipped = item.classList.contains('skipped');
-      const folderName = item.querySelector('[data-original]').dataset.original;
-      const searchName = item.querySelector('.confirm-item-input').value.trim();
-      toSearch.push({ folderName, searchName, skipped });
+      const input = item.querySelector('.confirm-item-input');
+      const folderName = input.dataset.original;
+      const folderPath = input.dataset.path || '';
+      const searchName = input.value.trim();
+      toSearch.push({ folderName, searchName, skipped, folderPath });
     });
 
-    games = [];
+    pendingFolders = [];
+
     loadingScreen.style.display = 'flex';
     loadingBar.style.width = '0%';
 
     const total = toSearch.filter(g => !g.skipped).length;
     let done = 0;
+    let cacheHits = 0;
 
     for (const entry of toSearch) {
       if (entry.skipped) {
-        games.push({ folderName: entry.folderName, searchName: entry.searchName, data: null, skipped: true });
+        games.push({ folderName: entry.folderName, searchName: entry.searchName, folderPath: entry.folderPath, data: null, skipped: true });
         continue;
       }
 
-      loadingText.textContent = `Fetching game data…`;
-      loadingSub.textContent = entry.searchName;
       loadingBar.style.width = `${Math.round((done / total) * 100)}%`;
 
+      // Check cache before showing "fetching" label
+      const isCached = API.cacheStats() > 0;
+      loadingText.textContent = isCached ? 'Loading from cache…' : 'Fetching game data…';
+      loadingSub.textContent = entry.searchName;
+
+      const beforeCount = API.cacheStats();
       const data = await API.fetchGame(entry.searchName);
-      games.push({ folderName: entry.folderName, searchName: entry.searchName, data });
+      const afterCount = API.cacheStats();
+      if (afterCount > beforeCount) cacheHits = 0; // new entry written
+      // If cache didn't grow and data came back, it was a hit
+      games.push({ folderName: entry.folderName, searchName: entry.searchName, folderPath: entry.folderPath, data });
       done++;
 
-      // Small delay to avoid hammering the API
-      await sleep(300);
+      await sleep(100);
     }
 
     loadingBar.style.width = '100%';
-    await sleep(300);
+    await sleep(200);
     loadingScreen.style.display = 'none';
 
-    // Show library
+    updateCacheLabel();
+
     searchWrap.style.display = 'block';
     viewToggle.style.display = 'flex';
-    setView('grid');
+    setView(currentView === 'grid' ? 'grid' : currentView);
   }
 
   // ── SET VIEW ──
@@ -214,7 +284,6 @@ const App = (() => {
       });
     });
 
-    // Auto-select first
     if (sidebarActive === -1 || sidebarActive >= list.length) {
       sidebarActive = 0;
       sidebarInner.querySelector('.sidebar-item')?.classList.add('active');
@@ -240,7 +309,6 @@ const App = (() => {
     gameModalOverlay.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
-    // Bind links in modal
     gameModal.querySelectorAll('.rawg-link').forEach(a => {
       a.addEventListener('click', e => {
         e.preventDefault();
@@ -255,6 +323,21 @@ const App = (() => {
   function closeModal() {
     gameModalOverlay.style.display = 'none';
     document.body.style.overflow = '';
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    let toast = $('appToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'appToast';
+      toast.className = 'app-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('visible');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('visible'), 2800);
   }
 
   function emptyHtml(small = false) {

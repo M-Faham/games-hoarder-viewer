@@ -497,7 +497,7 @@ html, body {
 
 /* ─── LIST VIEW ─── */
 .library-list { padding: 16px 24px; }
-.game-list { display: flex; flex-direction: column; gap: 6px; }
+.game-list { display: flex; flex-direction: column; gap: 10px; }
 .list-item {
   display: flex;
   align-items: center;
@@ -505,46 +505,76 @@ html, body {
   background: var(--bg-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 16px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: all .15s;
 }
 .list-item:hover { background: var(--bg-3); border-color: var(--border-hover); }
+
+/* Expanded list card */
+.list-item-expanded {
+  align-items: flex-start;
+  padding: 16px;
+  gap: 20px;
+}
+.list-item-expanded:hover { transform: translateX(2px); }
+
+.list-cover-col { flex-shrink: 0; }
 .list-thumb {
-  width: 40px;
-  height: 54px;
+  width: 80px;
+  height: 106px;
   object-fit: cover;
-  border-radius: 5px;
+  border-radius: var(--radius);
   background: var(--bg-3);
-  flex-shrink: 0;
+  display: block;
 }
 .list-thumb-placeholder {
-  width: 40px; height: 54px;
+  width: 80px; height: 106px;
   background: var(--bg-3);
-  border-radius: 5px;
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--muted);
   flex-shrink: 0;
 }
+
+.list-main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.list-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.list-badges { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.list-meta-score {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(74,222,128,0.15);
+  color: var(--green);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
 .list-info { flex: 1; min-width: 0; }
 .list-title {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 3px;
+  font-size: 20px;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .list-sub { font-size: 12px; color: var(--text-2); }
-.list-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  flex-shrink: 0;
+
+.list-genre-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.list-genre-tag {
+  font-size: 11px;
+  background: var(--bg-4);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: var(--text-2);
 }
 .list-genre {
   font-size: 11px;
@@ -552,6 +582,39 @@ html, body {
   border-radius: 4px;
   padding: 2px 8px;
   color: var(--text-2);
+}
+.list-desc {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.list-path {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list-screenshots {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.list-screenshot {
+  flex: 1;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 5px;
+  min-width: 0;
+}
+
+.list-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 /* ─── SIDEBAR VIEW ─── */
@@ -848,6 +911,51 @@ html, body {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 4px;
+}
+
+/* ── CACHE BUTTON ── */
+.btn-cache {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-2);
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-cache:hover { border-color: var(--red); color: var(--red); }
+
+/* ── CACHED BADGE (confirm list) ── */
+.cached-badge {
+  font-size: 9px;
+  color: var(--green);
+  flex-shrink: 0;
+  opacity: 0.7;
+  title: 'Cached';
+}
+
+/* ── TOAST ── */
+.app-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--bg-3);
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius);
+  color: var(--text-0);
+  font-size: 13px;
+  padding: 10px 20px;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.app-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* animations */

@@ -68,21 +68,38 @@ const Render = (() => {
         <div class="list-info">
           <div class="list-title">${game.searchName}</div>
           <div class="list-sub"><span class="not-found-tag">Not found</span></div>
+          ${game.folderPath ? `<div class="list-path">${game.folderPath}</div>` : ''}
         </div>
         <div class="list-right"><span class="list-genre">—</span></div>
       </div>`;
     }
     const d = game.data;
     const rc = ratingClass(d.rating);
-    return `<div class="list-item" data-index="${index}" style="animation-delay:${delay}s">
-      ${coverImg(d.cover, 'list-thumb')}
-      <div class="list-info">
-        <div class="list-title">${d.name}</div>
-        <div class="list-sub">${d.developers || 'Unknown Developer'} · ${d.released ? d.released.split('-')[0] : '—'}</div>
+    const screenshotsHtml = d.screenshots?.length > 0
+      ? `<div class="list-screenshots">
+          ${d.screenshots.slice(0, 3).map(s => `<img class="list-screenshot" src="${s}" alt="" loading="lazy" />`).join('')}
+        </div>`
+      : '';
+    const genres = (d.genres || []).slice(0, 3).map(g => `<span class="list-genre-tag">${g}</span>`).join('');
+    const desc = d.description ? d.description.slice(0, 200) + (d.description.length > 200 ? '…' : '') : '';
+
+    return `<div class="list-item list-item-expanded" data-index="${index}" style="animation-delay:${delay}s">
+      <div class="list-cover-col">
+        ${coverImg(d.cover, 'list-thumb')}
       </div>
-      <div class="list-right">
-        <span class="rating-badge ${rc}">★ ${ratingDisplay(d.rating)}</span>
-        <span class="list-genre">${d.genres?.[0] || '—'}</span>
+      <div class="list-main-col">
+        <div class="list-header-row">
+          <div class="list-title">${d.name}</div>
+          <div class="list-badges">
+            <span class="rating-badge ${rc}">★ ${ratingDisplay(d.rating)}</span>
+            ${d.metacritic ? `<span class="list-meta-score">${d.metacritic}</span>` : ''}
+          </div>
+        </div>
+        <div class="list-sub">${d.developers || 'Unknown Developer'} · ${d.released ? d.released.split('-')[0] : '—'}</div>
+        <div class="list-genre-row">${genres}</div>
+        ${desc ? `<div class="list-desc">${desc}</div>` : ''}
+        ${game.folderPath ? `<div class="list-path">${game.folderPath}</div>` : ''}
+        ${screenshotsHtml}
       </div>
     </div>`;
   }
@@ -177,6 +194,7 @@ const Render = (() => {
         ${infoRow('Publisher', d.publishers)}
         ${infoRow('Platforms', (d.platforms || []).join(', '))}
         ${infoRow('Rating Count', d.ratingsCount?.toLocaleString())}
+        ${game.folderPath ? infoRow('Location', game.folderPath) : ''}
         ${d.rawgUrl ? `<div style="margin-top:12px">
           <a href="#" class="rawg-link" data-url="${d.rawgUrl}" style="color:var(--accent);font-size:12px;text-decoration:none">
             View on RAWG →
@@ -268,6 +286,7 @@ const Render = (() => {
         ${infoRow('Publisher', d.publishers)}
         ${infoRow('Platforms', (d.platforms || []).join(', '))}
         ${infoRow('Released', d.released)}
+        ${game.folderPath ? infoRow('Location', game.folderPath) : ''}
         ${d.website ? `<div style="margin-top:12px">
           <a href="#" class="rawg-link" data-url="${d.website}" style="color:var(--accent);font-size:12px;text-decoration:none;margin-right:16px">
             Official Website →

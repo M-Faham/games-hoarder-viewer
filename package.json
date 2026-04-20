@@ -1,5 +1,6 @@
 {
   "name": "games-hoarder-viewer",
+  "author": "Mahmoud Alfaham",
   "version": "1.0.0",
   "description": "A Steam-like game library browser for repacked games",
   "main": "src/main.js",
