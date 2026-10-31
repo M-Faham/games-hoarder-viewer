@@ -4,23 +4,24 @@
 ═══════════════════════════════════════════ */
 
 :root {
-  --bg-0: #0f0f13;
-  --bg-1: #16161d;
-  --bg-2: #1e1e28;
-  --bg-3: #26262f;
-  --bg-4: #2e2e3a;
-  --border: rgba(255,255,255,0.07);
-  --border-hover: rgba(255,255,255,0.15);
-  --accent: #4f8ef7;
-  --accent-dim: rgba(79,142,247,0.15);
-  --accent-glow: rgba(79,142,247,0.4);
+  --bg-0: #0c1a22;
+  --bg-1: #112430;
+  --bg-2: #17303f;
+  --bg-3: #1f3d4e;
+  --bg-4: #2a5167;
+  --border: rgba(190,235,230,0.09);
+  --border-hover: rgba(146,245,218,0.28);
+  --accent: #92f5da;
+  --accent-dim: rgba(146,245,218,0.14);
+  --accent-glow: rgba(146,245,218,0.35);
+  --on-accent: #0c1a22;
   --green: #4ade80;
   --yellow: #facc15;
   --red: #f87171;
-  --text-0: #f0f0f5;
-  --text-1: #b0b0c0;
-  --text-2: #6c6c82;
-  --muted: #40404f;
+  --text-0: #eaf6f4;
+  --text-1: #a9c5cc;
+  --text-2: #6f929e;
+  --muted: #3d5d6b;
   --radius: 8px;
   --radius-lg: 14px;
   --shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -28,6 +29,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 
 html, body {
   height: 100%;
@@ -69,6 +72,12 @@ html, body {
 .topbar-left { display: flex; align-items: center; min-width: 180px; }
 .topbar-center { flex: 1; display: flex; justify-content: center; }
 .topbar-right { display: flex; align-items: center; gap: 10px; min-width: 180px; justify-content: flex-end; }
+
+.logo-img {
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 
 .logo {
   display: flex;
@@ -161,11 +170,14 @@ html, body {
   top: var(--topbar-h);
   left: 0; right: 0; bottom: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ═══ WELCOME SCREEN ═══ */
 .welcome-screen {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -175,7 +187,7 @@ html, body {
 .welcome-glow {
   position: absolute;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(146,245,218,0.08) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -186,7 +198,7 @@ html, body {
 }
 .welcome-icon {
   margin-bottom: 24px;
-  opacity: 0.85;
+  opacity: 1;
   animation: float 4s ease-in-out infinite;
 }
 @keyframes float {
@@ -215,7 +227,7 @@ html, body {
   align-items: center;
   gap: 10px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   border: none;
   border-radius: var(--radius);
   font-family: 'Rajdhani', sans-serif;
@@ -251,7 +263,7 @@ html, body {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow), 0 0 60px rgba(79,142,247,0.1);
+  box-shadow: var(--shadow), 0 0 60px rgba(146,245,218,0.1);
   overflow: hidden;
 }
 .confirm-header {
@@ -361,7 +373,7 @@ html, body {
 }
 .btn-primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   box-shadow: 0 0 16px var(--accent-glow);
 }
 .btn-primary:hover { filter: brightness(1.15); }
@@ -374,7 +386,8 @@ html, body {
 
 /* ═══ LOADING ═══ */
 .loading-screen {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -416,7 +429,8 @@ html, body {
 
 /* ═══ VIEW PANELS ═══ */
 .view-panel {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -619,7 +633,6 @@ html, body {
 
 /* ─── SIDEBAR VIEW ─── */
 .library-sidebar {
-  display: flex !important;
   overflow: hidden;
 }
 .sidebar-panel {
@@ -642,7 +655,7 @@ html, body {
   border: 1px solid transparent;
 }
 .sidebar-item:hover { background: var(--bg-3); }
-.sidebar-item.active { background: var(--accent-dim); border-color: rgba(79,142,247,0.3); }
+.sidebar-item.active { background: var(--accent-dim); border-color: rgba(146,245,218,0.3); }
 .sidebar-thumb {
   width: 32px; height: 44px;
   object-fit: cover;
@@ -822,7 +835,7 @@ html, body {
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: var(--shadow), 0 0 80px rgba(79,142,247,0.1);
+  box-shadow: var(--shadow), 0 0 80px rgba(146,245,218,0.1);
 }
 .modal-close {
   position: sticky;

@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/features.css" />
 </head>
 <body>
 
@@ -15,9 +16,7 @@
 <header class="topbar">
   <div class="topbar-left">
     <div class="logo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <img class="logo-img" src="assets/icon.png" width="30" height="30" alt="" />
       <span>GAMES HOARDER VIEWER</span>
     </div>
   </div>
@@ -40,9 +39,12 @@
       </button>
     </div>
     <button class="btn-cache" id="btnClearCache" title="Clear locally cached game data">Clear Cache</button>
+    <button class="btn-icon" id="btnSettings" title="Settings">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
     <button class="btn-folder" id="btnPickFolder">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-      Open Folder
+      Add Folders
     </button>
   </div>
 </header>
@@ -50,28 +52,142 @@
 <!-- ═══ MAIN CONTENT ═══ -->
 <main class="main-content">
 
-  <!-- WELCOME STATE -->
-  <div class="welcome-screen" id="welcomeScreen">
+  <!-- BANNERS -->
+  <div class="banner banner-error" id="keyRejectedBanner" style="display:none">
+    <span>Your RAWG key was rejected.</span>
+    <button class="btn-banner" id="btnBannerUpdateKey">Update key</button>
+  </div>
+  <div class="banner banner-info" id="updateNotice" style="display:none">
+    <span id="updateNoticeText"></span>
+    <button class="btn-banner" id="btnUpdateDownload">Download</button>
+    <button class="btn-banner btn-banner-ghost" id="btnUpdateDismiss">Dismiss</button>
+  </div>
+
+  <!-- LIBRARY TOOLBAR (sort / filter / count / pick / export) -->
+  <div class="library-toolbar" id="libraryToolbar" style="display:none">
+    <label class="toolbar-label">Sort
+      <select id="sortField" class="toolbar-select">
+        <option value="name">Name</option>
+        <option value="rating">Rating</option>
+        <option value="metacritic">Metacritic</option>
+        <option value="year">Release year</option>
+        <option value="size">Size</option>
+        <option value="added">Date added</option>
+      </select>
+    </label>
+    <button class="btn-chip" id="btnSortDir" title="Sort direction">↑ Asc</button>
+    <div class="filter-wrap">
+      <button class="btn-chip" id="btnFilters">Filters ▾</button>
+      <div class="popover-menu filter-panel" id="filterPanel" style="display:none"></div>
+    </div>
+    <span class="toolbar-count" id="toolbarCount"></span>
+    <button class="btn-chip" id="btnClearFilters" style="display:none">Clear filters</button>
+    <div class="toolbar-spacer"></div>
+    <button class="btn-chip" id="btnPickForMe">🎲 Pick for me</button>
+    <button class="btn-chip" id="btnExport">Export</button>
+  </div>
+
+  <!-- SELECTION BAR (multi-select) -->
+  <div class="selection-bar" id="selectionBar" style="display:none">
+    <span id="selectionCount"></span>
+    <button class="btn-chip" id="btnSelectionStatus">Set status ▾</button>
+    <button class="btn-chip" id="btnSelectionClear">Clear</button>
+  </div>
+
+  <!-- WELCOME / API KEY PAGE -->
+  <div class="welcome-screen" id="welcomeScreen" style="display:none">
+    <div class="welcome-glow"></div>
+    <div class="welcome-inner onboarding">
+      <div class="welcome-icon">
+        <img src="assets/icon.png" width="96" height="96" alt="" />
+      </div>
+      <h1 class="welcome-title">Games Hoarder Viewer</h1>
+      <p class="welcome-sub">Cover art, ratings and details for your games come from RAWG, a free game database. You need a free RAWG API key to load them.</p>
+      <ol class="onboarding-steps">
+        <li>Create a free account on RAWG.</li>
+        <li>Open the RAWG API page and request a key.</li>
+        <li>Copy the key it shows you.</li>
+        <li>Paste it below and click <strong>Save key</strong>.</li>
+      </ol>
+      <button class="btn-secondary" id="btnGetKey">Get a free key ↗</button>
+      <div class="key-row">
+        <input type="password" id="apiKeyInput" class="key-input" placeholder="Paste your RAWG API key" autocomplete="off" spellcheck="false" />
+        <button class="btn-icon" id="btnToggleKey" title="Show / hide key">👁</button>
+        <button class="btn-primary" id="btnSaveKey">Save key</button>
+      </div>
+      <div class="key-msg" id="apiKeyMsg"></div>
+      <button class="btn-link" id="btnSaveUnchecked" style="display:none">Save without checking</button>
+      <button class="btn-link" id="btnSkipKey">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- EMPTY LIBRARY -->
+  <div class="welcome-screen" id="emptyLibrary" style="display:none">
     <div class="welcome-glow"></div>
     <div class="welcome-inner">
       <div class="welcome-icon">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <img src="assets/icon.png" width="96" height="96" alt="" />
       </div>
       <h1 class="welcome-title">Games Hoarder Viewer</h1>
-      <p class="welcome-sub">Your repacked games library, beautifully organized.</p>
+      <p class="welcome-sub">Your local game library, beautifully organized.</p>
       <button class="btn-welcome" id="btnWelcomePick">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-        Choose Games Folder
+        Add Game Folders
       </button>
     </div>
   </div>
+
+  <!-- LOADING STATE -->
+  <div class="loading-screen" id="loadingScreen" style="display:none">
+    <div class="loading-inner">
+      <div class="loading-spinner"></div>
+      <p class="loading-text" id="loadingText">Fetching game data…</p>
+      <div class="loading-bar-wrap"><div class="loading-bar" id="loadingBar"></div></div>
+      <p class="loading-sub" id="loadingSub"></p>
+    </div>
+  </div>
+
+  <div class="library-body" id="libraryBody" style="display:none">
+  <aside class="folder-tabs" id="folderTabs"></aside>
+  <div class="library-views">
+
+  <!-- LIBRARY: GRID VIEW -->
+  <div class="library-grid view-panel" id="viewGrid" style="display:none">
+    <div class="game-grid" id="gameGrid"></div>
+    <div class="library-attrib"><a href="#" class="rawg-attrib" data-url="https://rawg.io">Data from RAWG</a></div>
+  </div>
+
+  <!-- LIBRARY: LIST VIEW -->
+  <div class="library-list view-panel" id="viewList" style="display:none">
+    <div class="game-list" id="gameList"></div>
+    <div class="library-attrib"><a href="#" class="rawg-attrib" data-url="https://rawg.io">Data from RAWG</a></div>
+  </div>
+
+  <!-- LIBRARY: SIDEBAR VIEW -->
+  <div class="library-sidebar view-panel" id="viewSidebar" style="display:none">
+    <aside class="sidebar-panel">
+      <div class="sidebar-inner" id="sidebarInner"></div>
+      <div class="library-attrib"><a href="#" class="rawg-attrib" data-url="https://rawg.io">Data from RAWG</a></div>
+    </aside>
+    <section class="detail-panel" id="detailPanel">
+      <div class="detail-placeholder">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p>Select a game to see details</p>
+      </div>
+    </section>
+  </div>
+
+  </div>
+  </div>
+
+</main>
 
   <!-- CONFIRM NAMES MODAL OVERLAY -->
   <div class="overlay" id="confirmOverlay" style="display:none">
     <div class="confirm-modal">
       <div class="confirm-header">
         <h2>Confirm Game Names</h2>
-        <p>Review and edit the detected game names before searching.</p>
+        <p>Review and edit the detected game names before searching. Skipped folders are kept under Settings → Hidden folders.</p>
       </div>
       <div class="confirm-list" id="confirmList"></div>
       <div class="confirm-footer">
@@ -91,40 +207,115 @@
     </div>
   </div>
 
-  <!-- LOADING STATE -->
-  <div class="loading-screen" id="loadingScreen" style="display:none">
-    <div class="loading-inner">
-      <div class="loading-spinner"></div>
-      <p class="loading-text" id="loadingText">Fetching game data…</p>
-      <div class="loading-bar-wrap"><div class="loading-bar" id="loadingBar"></div></div>
-      <p class="loading-sub" id="loadingSub"></p>
+  <!-- NAME YOUR FOLDERS -->
+  <div class="overlay" id="nameFoldersOverlay" style="display:none">
+    <div class="confirm-modal">
+      <div class="confirm-header">
+        <h2>Name your folders</h2>
+        <p>Each name appears on its games and in the folder filter. Up to 30 characters, and each name must be different.</p>
+      </div>
+      <div class="confirm-list" id="nameFoldersList"></div>
+      <div class="confirm-footer">
+        <span class="confirm-count" id="nameFoldersCount"></span>
+        <div class="confirm-actions">
+          <button class="btn-secondary" id="btnNameCancel">Cancel</button>
+          <button class="btn-primary" id="btnNameContinue">Continue</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- LIBRARY: GRID VIEW -->
-  <div class="library-grid view-panel" id="viewGrid" style="display:none">
-    <div class="game-grid" id="gameGrid"></div>
-  </div>
-
-  <!-- LIBRARY: LIST VIEW -->
-  <div class="library-list view-panel" id="viewList" style="display:none">
-    <div class="game-list" id="gameList"></div>
-  </div>
-
-  <!-- LIBRARY: SIDEBAR VIEW -->
-  <div class="library-sidebar view-panel" id="viewSidebar" style="display:none">
-    <aside class="sidebar-panel">
-      <div class="sidebar-inner" id="sidebarInner"></div>
-    </aside>
-    <section class="detail-panel" id="detailPanel">
-      <div class="detail-placeholder">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <p>Select a game to see details</p>
+  <!-- SETTINGS -->
+  <div class="overlay" id="settingsOverlay" style="display:none">
+    <div class="confirm-modal settings-modal">
+      <div class="confirm-header settings-header">
+        <h2>Settings</h2>
+        <button class="modal-close settings-close" id="btnSettingsClose" title="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
-    </section>
+      <div class="settings-body">
+        <section class="settings-section" id="settingsKey">
+          <h3>RAWG API key</h3>
+          <div class="settings-row">
+            <span id="keyMasked" class="mono">No key saved</span>
+            <span id="keyCheckState" class="muted-text"></span>
+          </div>
+          <div class="muted-text" id="keyUnencryptedNote" style="display:none">Stored without encryption on this PC.</div>
+          <div class="key-row">
+            <input type="password" id="settingsKeyInput" class="key-input" placeholder="New RAWG API key" autocomplete="off" spellcheck="false" />
+            <button class="btn-primary" id="btnReplaceKey">Save key</button>
+          </div>
+          <div class="key-msg" id="settingsKeyMsg"></div>
+          <button class="btn-link" id="btnSettingsSaveUnchecked" style="display:none">Save without checking</button>
+          <div class="settings-row">
+            <button class="btn-secondary" id="btnSettingsGetKey">Get a free key ↗</button>
+            <button class="btn-secondary btn-danger" id="btnRemoveKey">Remove key</button>
+          </div>
+        </section>
+
+        <section class="settings-section" id="settingsFolders">
+          <h3>Library folders</h3>
+          <table class="folders-table" id="foldersTable"></table>
+          <button class="btn-secondary" id="btnAddFolders">Add folders…</button>
+        </section>
+
+        <section class="settings-section" id="settingsHidden">
+          <h3>Hidden folders</h3>
+          <div id="hiddenList"></div>
+        </section>
+
+        <section class="settings-section" id="settingsIgnore">
+          <h3>Ignored folders</h3>
+          <p class="muted-text">Folders whose name matches a line below are never treated as games. One pattern per line; <b>*</b> matches anything, case is ignored.</p>
+          <textarea id="ignoreText" class="ignore-text" rows="6" spellcheck="false"></textarea>
+          <div class="settings-row"><button class="btn-secondary" id="btnSaveIgnore">Save and reload</button><span class="muted-text" id="ignoreMsg"></span></div>
+        </section>
+
+        <section class="settings-section" id="settingsAbout">
+          <h3>About</h3>
+          <div class="settings-row"><span id="appVersion"></span></div>
+          <label class="checkbox-row"><input type="checkbox" id="chkUpdates" /> Check for updates once a day</label>
+          <div class="settings-row"><a href="#" class="rawg-attrib" data-url="https://rawg.io">Data from RAWG</a></div>
+        </section>
+      </div>
+    </div>
   </div>
 
-</main>
+  <!-- FIX MATCH -->
+  <div class="overlay" id="fixMatchOverlay" style="display:none">
+    <div class="confirm-modal">
+      <div class="confirm-header">
+        <h2>Fix match</h2>
+        <p id="fixMatchFolder"></p>
+      </div>
+      <div class="fixmatch-search">
+        <input type="text" id="fixMatchInput" class="key-input" placeholder="Search RAWG…" />
+        <button class="btn-primary" id="btnFixMatchSearch">Search</button>
+      </div>
+      <div class="confirm-list" id="fixMatchResults"></div>
+      <div class="confirm-footer">
+        <a href="#" class="rawg-attrib" data-url="https://rawg.io">Data from RAWG</a>
+        <div class="confirm-actions">
+          <button class="btn-secondary" id="btnFixMatchReset" style="display:none">Reset to automatic</button>
+          <button class="btn-secondary btn-danger" id="btnFixMatchNotGame">Not a game</button>
+          <button class="btn-secondary" id="btnFixMatchClose">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERIC DIALOG (pick for me, export, installer choice, confirmations) -->
+  <div class="overlay" id="dialogOverlay" style="display:none">
+    <div class="confirm-modal dialog-modal">
+      <div class="confirm-header"><h2 id="dialogTitle"></h2></div>
+      <div class="dialog-body" id="dialogBody"></div>
+      <div class="confirm-footer">
+        <span></span>
+        <div class="confirm-actions" id="dialogButtons"></div>
+      </div>
+    </div>
+  </div>
 
 <!-- ═══ GAME DETAIL MODAL ═══ -->
 <div class="game-modal-overlay" id="gameModalOverlay" style="display:none">
@@ -137,8 +328,29 @@
   </div>
 </div>
 
+<!-- CONTEXT MENU -->
+<div class="context-menu" id="contextMenu" style="display:none"></div>
+
+<script src="shared/paths.js"></script>
+<script src="shared/names.js"></script>
+<script src="shared/rawg.js"></script>
+<script src="shared/match.js"></script>
+<script src="shared/ignore.js"></script>
+<script src="shared/reconcile.js"></script>
+<script src="shared/format.js"></script>
+<script src="shared/query.js"></script>
+<script src="shared/dupes.js"></script>
+<script src="shared/pick.js"></script>
+<script src="shared/versions.js"></script>
+<script src="shared/export.js"></script>
 <script src="js/api.js"></script>
 <script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/onboarding.js"></script>
+<script src="js/folders.js"></script>
+<script src="js/triage.js"></script>
+<script src="js/fixmatch.js"></script>
+<script src="js/actions.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
