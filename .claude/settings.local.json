@@ -8,7 +8,14 @@
       "Bash(./node_modules/electron/dist/electron.exe --version)",
       "Bash(taskkill /F /IM electron.exe)",
       "Bash(./node_modules/electron/dist/electron.exe .)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(sed -i \"s#require\\('png-to-ico'\\)#\\(m => m.default || m\\)\\(require\\('png-to-ico'\\)\\)#\" make-icon.js)",
+      "Bash(node make-icon.js)",
+      "Bash(cp \"C:/Users/Fahameho/AppData/Local/Temp/claude/e--Work-0---Personal-Projects-games-hoarder-viewer/4d863fa2-cc38-460f-9927-1263cedb834b/images/4.png\" \"E:/Work/0 - Personal Projects/games-hoarder-viewer/assets-src/icon-master.png\")",
+      "Bash(node make-icon3.js)",
+      "Bash(sed -i \"s/return mn > 218 \\\\&\\\\& mx - mn < 22;/return mn > 170 \\\\&\\\\& mx - mn < 30;/\" make-icon3.js)",
+      "Bash(npm test *)",
+      "Bash(env -u ELECTRON_RUN_AS_NODE timeout 90 npx electron \"C:/Users/Fahameho/AppData/Local/Temp/claude/e--Work-0---Personal-Projects-games-hoarder-viewer/4d863fa2-cc38-460f-9927-1263cedb834b/scratchpad/shot.js\")"
     ]
   }
 }

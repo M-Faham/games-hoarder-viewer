@@ -2,11 +2,12 @@
   "name": "games-hoarder-viewer",
   "author": "Mahmoud Alfaham",
   "version": "1.0.0",
-  "description": "A Steam-like game library browser for repacked games",
+  "description": "A Steam-like library browser for your local game folders",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "test": "node --test \"tests/*.test.js\""
   },
   "devDependencies": {
     "electron": "^41.2.1",
@@ -15,9 +16,23 @@
   "build": {
     "appId": "com.gameshoarderviewer.app",
     "productName": "Games Hoarder Viewer",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
     "win": {
-      "target": "nsis",
-      "icon": "src/assets/icon.ico"
+      "icon": "src/assets/icon.ico",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "${productName} ${version}.exe"
     },
     "directories": {
       "output": "dist"
